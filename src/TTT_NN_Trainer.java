@@ -106,7 +106,7 @@ public class TTT_NN_Trainer {
 		for (int j = 0; j < listOfFields.size(); j++) {
 			inputVectors.add(fieldToInputVector(listOfFields.get(j)));
 			statList.add(tttHandler.ai(listOfFields.get(j)));
-			outputVectors.add(fieldToOutputVector(statList.get(j).lastMove()));
+			outputVectors.add(moveToOutputVector(statList.get(j).lastMove()));
 		}
 		System.out.println("Werte wurden prepariert");
 	}
@@ -200,7 +200,7 @@ public class TTT_NN_Trainer {
 	 * @param {@link Stats s}
 	 * @return {@link Vector}
 	 */
-	public static Vector fieldToOutputVector(int move) {
+	public static Vector moveToOutputVector(int move) {
 		double[] output = new double[9];
 		for (int i = 0; i < 9; i++) {
 			output[i] = 0.01;
