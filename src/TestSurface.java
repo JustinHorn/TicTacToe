@@ -9,7 +9,6 @@ import java.awt.event.MouseListener;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -79,9 +78,6 @@ public class TestSurface {
 		windowAdd_radioButtonPanels();
 		window.add(create_TicTacToePanel());
 
-
-		window.add(create_newGameButton());
-
 		window.setResizable(false);
 		
 		window.revalidate();
@@ -103,16 +99,32 @@ public class TestSurface {
 		addButtons_toA_ButtonGroup(radioButtons);
 		
 		
-		JPanel rPgT = new JPanel();
-		rPgT.setLayout(new GridLayout(3, 1));
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridLayout(3, 1));
 		for (int i = 0; i < radioButtons.length; i++) {
-			rPgT.add(radioButtons[i]);
-			radioButtons[i].addActionListener(actionListener_that_showsOrHides_panel(i,aiRadioPanel));
+			panel.add(radioButtons[i]);
+			
+			final int j = i;
+			radioButtons[i].addActionListener(new ActionListener() {
+				final int b =j;
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					whichGameMode = b;
+					if (whichGameMode == PLAYER_VS_PLAYER) {
+						aiRadioPanel.setEnabled(false);
+						aiRadioPanel.setVisible(false);
+					} else {
+						aiRadioPanel.setEnabled(true);
+						aiRadioPanel.setVisible(true);
+					}
+				}
+
+			});
 		}
 
-		rPgT.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Game Typ"));
-		rPgT.setBounds(window.getWidth() / 20, window.getHeight() / 20, window.getWidth() / 5, window.getHeight() / 5);
-		return rPgT;
+		panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Game Typ"));
+		panel.setBounds(window.getWidth() / 20, window.getHeight() / 20, window.getWidth() / 5, window.getHeight() / 5);
+		return panel;
 	}
 	
 	private JPanel create_radioButtonPanel_for_aiType() {
@@ -159,17 +171,10 @@ public class TestSurface {
 		fieldSurface = new JTTTFieldPanel();
 
 		for (int i = 0; i < 9; i++) {
-			fieldSurface.setMouseListener(i,newMouselistener_for_panel(i));
+			fieldSurface.setMouseListener(i,newMouselistener_for_tttPanel(i));
 		}
 		
-		fieldSurface.setBounds(7 * window.getWidth() / 20, window.getHeight() / 20, 12 * window.getWidth() / 20,
-				65 * window.getHeight() / 100);
-		return fieldSurface;
-	}
-	
-	private JButton create_newGameButton() {
-		JButton newGame = new JButton("new Game"); // new Game Button
-		newGame.addActionListener(new ActionListener() {
+		fieldSurface.addListenerToButton(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -181,18 +186,18 @@ public class TestSurface {
 			}
 
 		});
-		newGame.setBounds(8 * window.getWidth() / 20, 72 * window.getHeight() / 100, 10 * window.getWidth() / 20,
-				window.getHeight() / 20);
-		return newGame;
+		
+		fieldSurface.setBounds(7 * window.getWidth() / 20, window.getHeight() / 20, 12 * window.getWidth() / 20,
+				8 * window.getHeight() / 10);
+		return fieldSurface;
 	}
-	
 	
 	/**
 	 * Tells the panel when it was clicked or not.
 	 * @param panelIndex
 	 * @return MouseListener that takes care of the move
 	 */
-	private MouseListener newMouselistener_for_panel(final int panelIndex) {
+	private MouseListener newMouselistener_for_tttPanel(final int panelIndex) {
 		return new MouseListener() {
 			final int index = panelIndex;
 
@@ -236,26 +241,6 @@ public class TestSurface {
 			}
 		};
 	}
-	
-	private ActionListener actionListener_that_showsOrHides_panel(final int buttonIndex, JPanel toShowOrHide) {
-		return new ActionListener() {
-			final int b = buttonIndex;
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				whichGameMode = b;
-				if (whichGameMode == PLAYER_VS_PLAYER) {
-					toShowOrHide.setEnabled(false);
-					toShowOrHide.setVisible(false);
-				} else {
-					toShowOrHide.setEnabled(true);
-					toShowOrHide.setVisible(true);
-				}
-			}
-
-		};
-	}
-
 
 	/**
 	 * Computer makes its move

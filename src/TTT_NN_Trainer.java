@@ -1,9 +1,6 @@
-import java.io.BufferedWriter;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -15,17 +12,68 @@ import java.util.List;
  */
 public class TTT_NN_Trainer {
 
-	protected List<int[]> listOfFields;
-	private TTTHandler tttHandler;
+	protected List<TTTField> listOfFields;
 	protected List<Vector> inputVectors;
 	protected List<Vector> outputVectors;
 	protected List<Stats> statList;
-
+	
 	public TTT_NN_Trainer() {
-		tttHandler = new TTTHandler(new int[9]);
-		tttHandler.setUpField();
-		listOfFields = new ArrayList<int[]>();
-		
+		listOfFields = new ArrayList<TTTField>();
+	}
+	
+	/**
+	 * Algorithm that calculates flawless/perfect next moves.<br>
+	 * Tells also if in case of perfect play it is a loose, victory or a draw for any player.
+	 * @param field int[9] </pre>
+	 * @return {@link Stats}
+	 */
+	public Stats ai(TTTField field) {
+		if (field.whoHasWon() == -1) {
+			List<Stats> outcome = new ArrayList<Stats>();
+			for (int i = 0; i < 9; i++) {
+				if (field.getInt_atIndex_X(i) == 0) {
+					field.set(i);
+					Stats a = ai(field);
+					a.invert(); // what is victory to one man is defeat to another
+					a.moves.add(i);
+					outcome.add(a);
+					field.set(i,0);
+				}
+			}
+			bSort(outcome); //Sortiert besten zug nach oben
+			Stats stat = outcome.get(0);
+			double w = stat.wins;
+			double lo = stat.looses;
+			for (Stats s : outcome) {
+				stat.wins += s.wins;
+				stat.looses += s.looses;
+			}
+			stat.wins -= w;
+			stat.looses -= lo;
+			return stat;
+		}
+		// wenn Feld Unentschieden, dann 1 ansonsten sei es verloren also 0
+		return new Stats((field.whoHasWon() == 0 ? 1 : 0)); 
+	}
+	
+	/**
+	 * Bubble sorts States List There surly is a easier way. But this was the one I
+	 * first thought of
+	 * 
+	 * @param a List&ltStats&gt 
+	 * @return sorted List&ltStats&gt  with greatest move on top
+	 */
+	public List<Stats> bSort(List<Stats> a) {
+		int b = a.size();
+		for (int i = 0; i < b; i++) {
+			for (int j = 0; j < b - i - 1; j++) {
+				if (a.get(j).total < a.get(j + 1).total
+						|| (a.get(j).total == a.get(j + 1).total && a.get(j).score() < a.get(j + 1).score())) {
+					Collections.swap(a, j, j + 1);
+				}
+			}
+		}
+		return a;
 	}
 
 	
@@ -92,7 +140,7 @@ public class TTT_NN_Trainer {
 		generateFields(new int[9], 0, 9);
 		int i = 0;
 		while (i < listOfFields.size()) {
-			if (!(tttHandler.whoHasWon(listOfFields.get(i)) == -1) || !even(listOfFields.get(i))) {
+			if (!(listOfFields.get(i).whoHasWon() == -1) || !(listOfFields.get(i).even())) {
 				listOfFields.remove(i);
 			} else {
 				i++;
@@ -104,33 +152,13 @@ public class TTT_NN_Trainer {
 		statList = new ArrayList<Stats>();
 
 		for (int j = 0; j < listOfFields.size(); j++) {
-			inputVectors.add(fieldToInputVector(listOfFields.get(j)));
-			statList.add(tttHandler.ai(listOfFields.get(j)));
+			inputVectors.add(listOfFields.get(j).toInputVector());
+			statList.add(ai(listOfFields.get(j)));
 			outputVectors.add(moveToOutputVector(statList.get(j).lastMove()));
 		}
 		System.out.println("Werte wurden prepariert");
 	}
 
-	/**
-	 * Counts if the amount of sevens and threes is possible in a real game. <br>
-	 * --> As many sevens as threes or one more seven than threes <br>
-	 * Helper method for {@link #generateFields(int[], int, int)}
-	 * 
-	 * @param field
-	 * @return boolean
-	 */
-	public boolean even(int[] field) {
-		int countX = 0;
-		int countO = 0;
-		for (int i = 0; i < field.length; i++) {
-			if (field[i] == 3) {
-				countO++;
-			} else if (field[i] == 7) {
-				countX++;
-			}
-		}
-		return (countX == countO) || (countX - 1 == countO);
-	}
 
 	/**
 	 * Recursive function that generates all possible TicTacToe fields and adds them
@@ -146,53 +174,28 @@ public class TTT_NN_Trainer {
 	public void generateFields(int[] field, int deep, int depth) {
 		field[deep] = 0;
 		if (deep + 1 == depth) {
-			listOfFields.add(field.clone());
+			listOfFields.add(new TTTField(field.clone()));
 			// printArray(field);
 		} else if (deep + 1 < depth) {
 			generateFields(field, deep + 1, depth);
 		}
 		field[deep] = 3;
 		if (deep + 1 == depth) {
-			listOfFields.add(field.clone());
+			listOfFields.add(new TTTField(field.clone()));
 			// printArray(field);
 		} else if (deep + 1 < depth) {
 			generateFields(field, deep + 1, depth);
 		}
 		field[deep] = 7;
 		if (deep + 1 == depth) {
-			listOfFields.add(field.clone());
+			listOfFields.add(new TTTField(field.clone()));
 			// printArray(field);
 		} else if (deep + 1 < depth) {
 			generateFields(field, deep + 1, depth);
 		}
 	}
 
-	/**
-	 * Turns field to a {@link Vector}
-	 * 
-	 * @param field int[]
-	 * @return {@link Vector}
-	 */
-	public static Vector fieldToInputVector(int[] field) {
-		double[] vector = new double[27];
-		for (int i = 0; i < 27; i += 3) {
-			vector[i] = 0.01;
-			vector[i + 1] = 0.01;
-			vector[i + 2] = 0.01;
 
-			if (field[i / 3] == 0) {
-				vector[i] = 0.99;
-			} else if (field[i / 3] == 3) {
-				vector[i + 1] = 0.99;
-			} else if (field[i / 3] == 7) {
-				vector[i + 2] = 0.99;
-			}
-		}
-		Vector v = new Vector(27);
-		v.arrayInit(vector);
-		return v;
-
-	}
 
 	/**
 	 * 

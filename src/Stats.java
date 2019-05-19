@@ -4,7 +4,7 @@ import java.util.List;
 /**
  * 
  * @author Justin Horn <br><br>
- *	Keeps track of information and moves to play for {@link Algorithmus#ai(int[])}
+ *	Keeps track of information and moves to play 
  */
 public class Stats {
 	
