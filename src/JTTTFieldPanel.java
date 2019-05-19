@@ -29,9 +29,6 @@ public class JTTTFieldPanel extends JPanel {
 			panel[i].setState(0);
 		}
 		//field.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "TicTacToe"));
-		
-		
-		
 		add(field);
 		add(newGame);
 		setBounds_of_FieldAndGame();

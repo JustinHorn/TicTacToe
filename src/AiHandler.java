@@ -3,6 +3,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.sun.javafx.binding.StringFormatter;
+
 
 /**
  * 
@@ -12,15 +14,24 @@ import java.util.List;
  */
 public class AiHandler {
 
-	protected List<TTTField> listOfFields;
-	protected List<Vector> inputVectors;
-	protected List<Vector> outputVectors;
-	protected List<Stats> statList;
+	private List<TTTField> listOfFields;
+	private List<Vector> inputVectors;
+	private List<Vector> outputVectors;
+	private List<Stats> statList;
+	private List<TTT_NN_Container> neuralnetworks;
+	
 	
 	public AiHandler() {
 		listOfFields = new ArrayList<TTTField>();
+		neuralnetworks = new ArrayList<TTT_NN_Container>();
+		generateTrainingValues();
+
 	}
 	
+	
+	public double getRelativeScore(int j) {
+		return neuralnetworks.get(j).relativeScore;
+	}
 	/**
 	 * Algorithm that calculates flawless/perfect next moves.<br>
 	 * Tells also if in case of perfect play it is a loose, victory or a draw for any player.
@@ -56,6 +67,51 @@ public class AiHandler {
 		return new Stats((field.whoHasWon() == 0 ? 1 : 0)); 
 	}
 	
+	public void addNeuralNet_by_File(String filePath) throws IllegalArgumentException {
+		TTT_NN_Container container = new TTT_NN_Container(new NeuralNetwork(filePath));
+		neuralnetworks.add(container);
+		calcScore_of_Container(container);
+	}
+	
+	private void calcScore_of_Container(TTT_NN_Container container) { // output argument?!
+		NeuralNetwork n = container.nn;
+		int score = 0;
+		for (int i = 0; i < listOfFields.size(); i++) {
+			int move = statList.get(i).lastMove();
+				if (n.calcLast(inputVectors.get(i)).largestIndex() == move) {
+					score++;
+				}
+		}
+		container.score = score;
+		container.relativeScore = ((double)score)/listOfFields.size();
+		System.out.println("NN has a total score of: " + container.score + " a ratio of:" + container.relativeScore);
+
+	}
+	
+	public void addNeuralNet_by_Training(int[] layers, int epochs, double learningRate) {
+		NeuralNetwork nn = new NeuralNetwork(layers);
+
+
+		for (int e = 0; e <epochs; e++) { // epochen
+			for (int i = 0; i < inputVectors.size(); i++) {
+					nn.train(inputVectors.get(i), outputVectors.get(i), learningRate);
+			}
+		}
+		System.out.println("Netz wurde trainiert");
+		TTT_NN_Container container = new TTT_NN_Container(nn);
+		neuralnetworks.add(container);
+		
+		calcScore_of_Container(container);		
+	}
+	
+	
+	public int getMove_By_NeuralNetowrk(int index, TTTField field) {
+		NeuralNetwork n = neuralnetworks.get(index).nn;
+		Vector output = n.calcLast(field.toInputVector());
+		int move = output.largestIndex(field.possibleMoves());
+		return move;
+	}
+	
 	/**
 	 * Bubble sorts States List There surly is a easier way. But this was the one I
 	 * first thought of
@@ -77,60 +133,6 @@ public class AiHandler {
 	}
 
 	
-
-	/**
-	 * Trains Networks to learn TicTacToe
-	 * 
-	 * @param layers    int[][] Array with layer order for each network (has to
-	 *                  start with 27 and end with 9)
-	 * @param epos      how often a the network shall be trained
-	 *
-	 * @param trainRate rate at wich a Net should be trained
-	 * @return NeuralNetwork[] - trained networks
-	 * @throws InterruptedException
-	 */
-	public NeuralNetwork[] trainTicTacToe(int[][] layers, int epos, double trainRate) {
-		if(inputVectors == null ||outputVectors ==null||statList==null) {
-			generateTrainingValues();
-		}
-		int ll = layers.length;
-
-		NeuralNetwork[] nns = new NeuralNetwork[ll];
-
-		for (int i = 0; i < ll; i++) {
-			nns[i] = new NeuralNetwork(layers[i]);
-		}
-
-		for (int e = 0; e < epos; e++) { // epochen
-			for (int i = 0; i < inputVectors.size(); i++) {
-				for (int j = 0; j < ll; j++) {
-					nns[j].train(inputVectors.get(i), outputVectors.get(i), trainRate);
-				}
-			}
-		}
-		System.out.println("Netze wurden trainiert");
-
-		int[] score = new int[ll];
-
-		for (int j = 0; j < ll; j++) {
-			score[j] = 0;
-		}
-		for (int i = 0; i < listOfFields.size(); i++) {
-			int move = statList.get(i).lastMove();
-			for (int j = 0; j < ll; j++) {
-				if (nns[j].calcLast(inputVectors.get(i)).largestIndex() == move) {
-					score[j]++;
-				}
-			}
-		}
-		for (int j = 0; j < ll; j++) {
-			System.out.println(
-					"NN has a total score of: " + score[j] + " a ratio of:" + (((double) score[j]) / listOfFields.size()));
-		}
-		return nns;
-
-
-	}
 
 	/**
 	 * Generates all the values you need to train a TicTacToe NN.<br>

@@ -27,8 +27,7 @@ public class TestSurface {
 	private int whichAi;
 	/**0 = CvS| 1 = SvC| 2 = SvS*/
 	private int whichGameMode;
-	private NeuralNetwork[] nn;
-	private TTT_NN_Trainer ntrain;
+	private AiHandler aihandler;
 	private JTTTFieldPanel fieldSurface;
 	private TTTField field;
 	
@@ -50,8 +49,8 @@ public class TestSurface {
 	 * Assigning global variables
 	 */
 	private void assingGlobals() {
+		aihandler = new AiHandler();
 		assignNeuralNetworks();
-		ntrain = new TTT_NN_Trainer();
 		whichAi = 0;
 		whichGameMode = 0;
 		field = new TTTField();
@@ -150,10 +149,10 @@ public class TestSurface {
 	
 	private JRadioButton[] create_AIradioButtonArray() {
 		JRadioButton[] ai = new JRadioButton[4]; // radioButtons aiType
-		ai[0] = new JRadioButton("Algorithm", true);
-		ai[1] = new JRadioButton("NeuralNet 4 99.8%", false);
-		ai[2] = new JRadioButton("NeuralNet 3 96.4%", false);
-		ai[3] = new JRadioButton("NeuralNet 1 47.9%", false);
+		ai[0] = new JRadioButton("Algorithm", true);//selected button
+		ai[1] = new JRadioButton("NeuralNet 1 "+String.format(" %2.3f ",aihandler.getRelativeScore(0)));
+		ai[2] = new JRadioButton("NeuralNet 2 "+String.format(" %2.3f ",aihandler.getRelativeScore(1)));
+		ai[3] = new JRadioButton("NeuralNet 3 "+String.format(" %2.3f ",aihandler.getRelativeScore(2)));
 		return ai;
 	}
 	
@@ -261,15 +260,14 @@ public class TestSurface {
 	private int calcPcMove() {
 		int move = 0;
 		if (whichAi == 0) {
-			move = ntrain.ai(field).lastMove();
+			move = aihandler.ai(field).lastMove();
 		} else  {
-			move = nn[whichAi-1].calcLast(field.toInputVector()).largestIndex(field.getMoves_left_to_make());
+			move = aihandler.getMove_By_NeuralNetowrk(whichAi-1, field);
 		} 
 		return move;
 	}
 	
 	private void assignNeuralNetworks() {
-		nn = new NeuralNetwork[3];
 		try {
 			setUpNeuralNetworks_by_Files();
 		} catch (Exception e) {
@@ -279,20 +277,20 @@ public class TestSurface {
 	}
 	
 	private void setUpNeuralNetworks_by_Files() {
-		nn[0] = new NeuralNetwork("3_[27, 1000, 9].txt");
-		nn[1] = new NeuralNetwork("3_[27, 100, 9].txt");
-		nn[2] = new NeuralNetwork("2_[27, 9].txt");
+		aihandler.addNeuralNet_by_File("3_[27, 1000, 9].txt");
+		aihandler.addNeuralNet_by_File("3_[27, 100, 9].txt");
+		aihandler.addNeuralNet_by_File("2_[27, 9].txt");
 	}
 	
 	private void setUpNeuralNetworks_by_calculation() {
-		int[][] layers  = new int[3][];
 		int[] l1 = {27,9};
 		int[] l2 = {27,100,9};
 		int[] l3 = {27,1000,9};
+		
+		aihandler.addNeuralNet_by_Training(l1, 1000, 0.3);
+		aihandler.addNeuralNet_by_Training(l2, 1000, 0.3);
+		aihandler.addNeuralNet_by_Training(l3, 1000, 0.3);
+		
 
-		layers[0] = l1;
-		layers[1] = l2;
-		layers[2] = l3;
-		nn = ntrain.trainTicTacToe(layers, 1000, 0.3);
 	}
 }

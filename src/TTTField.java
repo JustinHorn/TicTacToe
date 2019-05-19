@@ -204,7 +204,7 @@ public class TTTField {
 	 * @param field
 	 * @return
 	 */
-	public boolean[] getMoves_left_to_make() {
+	public boolean[] possibleMoves() {
 		boolean[] a = new boolean[field.length];
 		for (int i = 0; i < a.length; i++) {
 			a[i] = field[i] == 0;
@@ -213,7 +213,7 @@ public class TTTField {
 	}
 	
 	public char toChar(int x) {
-		if(x != 0 && x!= 3 && 3!=7) {
+		if(x != 0 && x!= 3 && x!=7) {
 			throw new IllegalArgumentException("Parameter is neither 0,3 nor 7! x:"+x);
 		}
 		if (x == 0) {
