@@ -75,6 +75,10 @@ public class TTTField {
 		}
 	}
 	
+	public boolean isFree(int x) {
+		return field[x] == 0;
+	}
+	
 	/**
 	 * adds all values together
 	 * @param field int[]
@@ -117,7 +121,7 @@ public class TTTField {
 	 * @param a int
 	 */
 	public void set(int index) {
-		field[index] = whosTurn(field);
+		field[index] = whosTurn();
 	}
 	
 	/**
@@ -133,7 +137,7 @@ public class TTTField {
 	 * @param field int[]
 	 * @return 7 -> X turn 3-> O turn
 	 */
-	public int whosTurn(int[] field) {
+	public int whosTurn() {
 		int countX = 0;
 		int countO = 0;
 		for (int i = 0; i < field.length; i++) {
@@ -192,6 +196,32 @@ public class TTTField {
 		v.arrayInit(vector);
 		return v;
 
+	}
+	
+
+	/**
+	 * 
+	 * @param field
+	 * @return
+	 */
+	public boolean[] getMoves_left_to_make() {
+		boolean[] a = new boolean[field.length];
+		for (int i = 0; i < a.length; i++) {
+			a[i] = field[i] == 0;
+		}
+		return a;
+	}
+	
+	public char toChar(int x) {
+		if(x != 0 && x!= 3 && 3!=7) {
+			throw new IllegalArgumentException("Parameter is neither 0,3 nor 7! x:"+x);
+		}
+		if (x == 0) {
+			return ' ';
+		} else if (x == 3) {
+			return 'O';
+		}
+		return 'X';
 	}
 
 

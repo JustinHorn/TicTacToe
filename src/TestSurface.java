@@ -27,10 +27,11 @@ public class TestSurface {
 	private int whichAi;
 	/**0 = CvS| 1 = SvC| 2 = SvS*/
 	private int whichGameMode;
-	private TTTHandler tttHandler;
 	private NeuralNetwork[] nn;
 	private TTT_NN_Trainer ntrain;
 	private JTTTFieldPanel fieldSurface;
+	private TTTField field;
+	
 	private final int PLAYER_VS_PLAYER = 2;
 	/**
 	 * Does the shit
@@ -50,11 +51,10 @@ public class TestSurface {
 	 */
 	private void assingGlobals() {
 		assignNeuralNetworks();
-		tttHandler = new TTTHandler();
-		tttHandler.setUpField();
 		ntrain = new TTT_NN_Trainer();
 		whichAi = 0;
 		whichGameMode = 0;
+		field = new TTTField();
 	}
 	
 	private void setUpWindow() {
@@ -179,7 +179,7 @@ public class TestSurface {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				fieldSurface.reset();
-				tttHandler.setUpField();
+				field.setField_toStart();
 				if (whichGameMode == 0) { // ai starts
 					computerMove();
 				}
@@ -216,16 +216,16 @@ public class TestSurface {
 				mouseEvent();
 			}
 			private void mouseEvent() {
-				if(tttHandler.whoHasWon() == -1) {
-					if (tttHandler.get(index) == 0) {
-						fieldSurface.paint(index, tttHandler.whosTurn());
-						tttHandler.set(index);
+				if(field.whoHasWon() == -1) {
+					if (field.isFree(index)) {
+						fieldSurface.paint(index, field.whosTurn());
+						field.set(index);
 						if (whichGameMode < 2) {
 							computerMove();
 						}
 					}
 				}else {
-					JOptionPane.showMessageDialog(null, "Winner is: "+ intToChar(tttHandler.whoHasWon()));
+					JOptionPane.showMessageDialog(null, "Winner is: "+ field.toChar(field.whoHasWon()));
 				}
 			}
 			@Override public void mouseEntered(MouseEvent e) {}@Override public void mouseExited(MouseEvent e) {}
@@ -247,10 +247,10 @@ public class TestSurface {
 	 * 
 	 */
 	private void computerMove() {
-		if (tttHandler.whoHasWon() == -1) {
+		if (field.whoHasWon() == -1) {
 			int move =	calcPcMove();
-			fieldSurface.paint(move,tttHandler.whosTurn());
-			tttHandler.set(move);
+			fieldSurface.paint(move,field.whosTurn());
+			field.set(move);
 		}
 	}
 	
@@ -261,24 +261,11 @@ public class TestSurface {
 	private int calcPcMove() {
 		int move = 0;
 		if (whichAi == 0) {
-			move = tttHandler.ai(tttHandler.get()).lastMove();
+			move = ntrain.ai(field).lastMove();
 		} else  {
-			move = nn[whichAi-1].calcLast(ntrain.fieldToInputVector(tttHandler.get())).largestIndex(fToInclude(tttHandler.get()));
+			move = nn[whichAi-1].calcLast(field.toInputVector()).largestIndex(field.getMoves_left_to_make());
 		} 
 		return move;
-	}
-
-	/**
-	 * 
-	 * @param field
-	 * @return
-	 */
-	public boolean[] fToInclude(int[] field) {
-		boolean[] a = new boolean[field.length];
-		for (int i = 0; i < a.length; i++) {
-			a[i] = field[i] == 0;
-		}
-		return a;
 	}
 	
 	private void assignNeuralNetworks() {
@@ -308,17 +295,4 @@ public class TestSurface {
 		layers[2] = l3;
 		nn = ntrain.trainTicTacToe(layers, 1000, 0.3);
 	}
-	
-	
-	private char intToChar(int x) {
-		if (x == 0) {
-			return ' ';
-		} else if (x == 3) {
-			return 'O';
-		}
-		return 'X';
-	}
-	
-	
-
 }
