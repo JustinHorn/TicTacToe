@@ -10,14 +10,14 @@ import java.util.List;
  *<br><br>
  *Helps Setting up the NN for tictactoe
  */
-public class TTT_NN_Trainer {
+public class AiHandler {
 
 	protected List<TTTField> listOfFields;
 	protected List<Vector> inputVectors;
 	protected List<Vector> outputVectors;
 	protected List<Stats> statList;
 	
-	public TTT_NN_Trainer() {
+	public AiHandler() {
 		listOfFields = new ArrayList<TTTField>();
 	}
 	
