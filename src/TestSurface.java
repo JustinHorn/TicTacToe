@@ -20,50 +20,39 @@ import javax.swing.JRadioButton;
  * Window and game..... <p>
  * Useful for testing purposes
  */
-public class TestSurface {
+public class TestSurface extends JFrame {
 
-	private JFrame window;
-	private JTTTFieldPanel fieldSurface;
-	private ProgrammExecution execution;
-	private Class_Connector container;
+	private Class_Connector connector;
 
-	public TestSurface() {
+	public TestSurface(Class_Connector connector) {
+		this.connector = connector;
 		setUpWindow();
-		assingGlobals();
 		addPanelsToWindow();
-	}
-
-	private void assingGlobals() {
-		container = new Class_Connector(window);
-		fieldSurface = new JTTTFieldPanel(container);
-		execution = new ProgrammExecution(container);
-		container.addExecuter(execution);
 	}
 	
 	private void setUpWindow() {
-		window = new JFrame("TicTacToe");
+		setTitle("TicTacToe");
 		setWindowBounds();
-		window.setEnabled(true);
-		window.setVisible(true);
-		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		window.setLayout(null);
-		window.setResizable(false);
+		setEnabled(true);
+		setVisible(true);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setLayout(null);
+		setResizable(false);
 	}
+	
 	private void setWindowBounds() {
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		int width = gd.getDisplayMode().getWidth();
 		int height = gd.getDisplayMode().getHeight();
-		window.setBounds(width / 4, height / 4, width / 2, height / 2); 
+		setBounds(width / 4, height / 4, width / 2, height / 2); 
 	}
 	
 	private void addPanelsToWindow() {
 		JPanel aiPanel = create_radioButtonPanel_for_aiType();
-		window.add(aiPanel);
-		window.add(create_radioButtonPanel_for_gameMode(aiPanel));
-		container.addTestSurface(fieldSurface);
-		window.add(container.fieldSurface);
-		window.revalidate();
-		window.repaint();
+		add(aiPanel);
+		add(create_radioButtonPanel_for_gameMode(aiPanel));
+		revalidate();
+		repaint();
 	}
 	
 	private JPanel create_radioButtonPanel_for_gameMode(JPanel panel_supposedTo_ShowOrHide) {
@@ -85,8 +74,8 @@ public class TestSurface {
 				final int b =j;
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					container.whichGameMode = b;
-					if (container.whichGameMode  == container.PLAYER_VS_PLAYER) {
+					connector.whichGameMode = b;
+					if (connector.whichGameMode  == connector.PLAYER_VS_PLAYER) {
 						panel_supposedTo_ShowOrHide.setEnabled(false);
 						panel_supposedTo_ShowOrHide.setVisible(false);
 					} else {
@@ -99,7 +88,7 @@ public class TestSurface {
 		}
 
 		panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Game Mode"));
-		panel.setBounds(window.getWidth() / 20, window.getHeight() / 20, window.getWidth() / 5, window.getHeight() / 5);
+		panel.setBounds(getWidth() / 20,getHeight() / 20, getWidth() / 5, getHeight() / 5);
 		return panel;
 	}
 	
@@ -115,8 +104,8 @@ public class TestSurface {
 	private JPanel create_radioPanel_aiType() {
 		JPanel panel = new JPanel();
 		panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Ai Type"));
-		panel.setBounds(window.getWidth() / 20, 6 * window.getHeight() / 20, window.getWidth() / 5,
-				5 * window.getHeight() / 10);
+		panel.setBounds(getWidth() / 20, 6 * getHeight() / 20, getWidth() / 5,
+				5 * getHeight() / 10);
 		panel.setEnabled(true);
 		return panel;
 	}
@@ -131,9 +120,9 @@ public class TestSurface {
 	private JRadioButton[] create_AIradioButtonArray() {
 		JRadioButton[] ai = new JRadioButton[4]; // radioButtons aiType
 		ai[0] = new JRadioButton("Algorithm", true);//selected button
-		ai[1] = new JRadioButton("NeuralNet 1 "+String.format(" %2.3f ",container.getRelativScore_of_NN(0)));
-		ai[2] = new JRadioButton("NeuralNet 2 "+String.format(" %2.3f ",container.getRelativScore_of_NN(1)));
-		ai[3] = new JRadioButton("NeuralNet 3 "+String.format(" %2.3f ",container.getRelativScore_of_NN(2)));
+		ai[1] = new JRadioButton("NeuralNet 1 "+String.format(" %2.3f ",connector.getRelativScore_of_NN(0)));
+		ai[2] = new JRadioButton("NeuralNet 2 "+String.format(" %2.3f ",connector.getRelativScore_of_NN(1)));
+		ai[3] = new JRadioButton("NeuralNet 3 "+String.format(" %2.3f ",connector.getRelativScore_of_NN(2)));
 		for (int i = 0; i < ai.length; i++) {
 			ai[i].addActionListener(create_Actionlistener_changes_whichAi(i));
 		}
@@ -156,7 +145,7 @@ public class TestSurface {
 			final int b = buttonIndex;
 
 			public void actionPerformed(ActionEvent e) {
-				container.whichAi = b;
+				connector.whichAi = b;
 			}
 		};
 	}

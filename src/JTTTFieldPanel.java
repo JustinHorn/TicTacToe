@@ -16,15 +16,17 @@ public class JTTTFieldPanel extends JPanel {
 	public PaintPanel[] jpanel; 
 	public JButton button_newGame;
 	public JPanel field;
-	private Class_Connector container;
-	
+	private Class_Connector connector;
+	private TTTField tttField;
+	private JFrame window;
 	
 	public JTTTFieldPanel( Class_Connector c) {
 		super();
 		setLayout(null);
-		container = c;
-		JFrame window = container.window;
-
+		connector = c;
+		window = connector.testSurface;
+		tttField = connector.field;
+		
 		jpanel = new PaintPanel[9];
 
 		field = new JPanel();
@@ -43,22 +45,24 @@ public class JTTTFieldPanel extends JPanel {
 		button_newGame.addActionListener(createActionListener_newGame());
 	
 		add(button_newGame);
-
-		
 		setBounds(7 * window.getWidth() / 20, window.getHeight() / 20, 12 * window.getWidth() / 20,
 				8 * window.getHeight() / 10);
 		setBounds_of_FieldAndGame();
 		setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "TicTacToe"));
+
+		connector.testSurface.add(this);
+
 	}
 	
 
 	@Override
 	public void setBounds(int x, int y, int width, int height) {
 		super.setBounds(x, y, width, height);
-		setBounds_of_FieldAndGame();
+		//setBounds_of_FieldAndGame();
 	}
 	
 	public void setBounds_of_FieldAndGame() {
+		
 		field.setBounds(this.getWidth()/20,this.getHeight()/20,this.getWidth()/10*9,this.getHeight()/10*8);
 		button_newGame.setBounds(this.getWidth()/10,this.getHeight()/20*18,this.getWidth()/10*8,this.getHeight()/20);
 	}
@@ -105,16 +109,16 @@ public class JTTTFieldPanel extends JPanel {
 					mouseEvent();
 				}
 				private void mouseEvent() {
-					if(container.field.whoHasWon() == -1) {
-						if (container.field.isFree(index)) {
-							paint(index, container.field.whosTurn());
-							container.field.set(index);
-							if (container.whichGameMode != container.PLAYER_VS_PLAYER) {
-								container.execution.computerMove();
+					if(tttField.whoHasWon() == -1) {
+						if (tttField.isFree(index)) {
+							paint(index, tttField.whosTurn());
+							tttField.set(index);
+							if (connector.whichGameMode != connector.PLAYER_VS_PLAYER) {
+								connector.execution.computerMove();
 							}
 						}
 					}else {
-						JOptionPane.showMessageDialog(null, "Winner is: "+ container.field.toChar(container.field.whoHasWon()));
+						JOptionPane.showMessageDialog(null, "Winner is: "+ tttField.toChar(tttField.whoHasWon()));
 					}
 				}
 				@Override public void mouseEntered(MouseEvent e) {}@Override public void mouseExited(MouseEvent e) {}
@@ -127,9 +131,9 @@ public class JTTTFieldPanel extends JPanel {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					reset();
-					container.field.setField_toStart();
-					if (container.whichGameMode == container.COMPUTER_VS_PLAYER) { // ai starts
-						container.execution.computerMove();
+					tttField.setField_toStart();
+					if (connector.whichGameMode == connector.COMPUTER_VS_PLAYER) { // ai starts
+						connector.execution.computerMove();
 					}
 				}
 
