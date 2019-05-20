@@ -18,19 +18,13 @@ public class AiHandler {
 	private List<Vector> inputVectors;
 	private List<Vector> outputVectors;
 	private List<Stats> statList;
-	private List<TTT_NN_Container> neuralnetworks;
+	private TestSurface_Execution_variableContainer c;
 	
-	
-	public AiHandler() {
+	public AiHandler(TestSurface_Execution_variableContainer c) {
 		listOfFields = new ArrayList<TTTField>();
-		neuralnetworks = new ArrayList<TTT_NN_Container>();
 		generateTrainingValues();
+		this.c = c;
 
-	}
-	
-	
-	public double getRelativeScore(int j) {
-		return neuralnetworks.get(j).relativeScore;
 	}
 	/**
 	 * Algorithm that calculates flawless/perfect next moves.<br>
@@ -69,7 +63,7 @@ public class AiHandler {
 	
 	public void addNeuralNet_by_File(String filePath) throws IllegalArgumentException {
 		TTT_NN_Container container = new TTT_NN_Container(new NeuralNetwork(filePath));
-		neuralnetworks.add(container);
+		c.neuralnetworks.add(container);
 		calcScore_of_Container(container);
 	}
 	
@@ -99,14 +93,14 @@ public class AiHandler {
 		}
 		System.out.println("Netz wurde trainiert");
 		TTT_NN_Container container = new TTT_NN_Container(nn);
-		neuralnetworks.add(container);
+		c.neuralnetworks.add(container);
 		
 		calcScore_of_Container(container);		
 	}
 	
 	
-	public int getMove_By_NeuralNetowrk(int index, TTTField field) {
-		NeuralNetwork n = neuralnetworks.get(index).nn;
+	public int getMove_By_NeuralNetwork(int index, TTTField field) {
+		NeuralNetwork n = c.neuralnetworks.get(index).nn;
 		Vector output = n.calcLast(field.toInputVector());
 		int move = output.largestIndex(field.possibleMoves());
 		return move;
@@ -119,7 +113,7 @@ public class AiHandler {
 	 * @param a List&ltStats&gt 
 	 * @return sorted List&ltStats&gt  with greatest move on top
 	 */
-	public List<Stats> bSort(List<Stats> a) {
+	private List<Stats> bSort(List<Stats> a) {
 		int b = a.size();
 		for (int i = 0; i < b; i++) {
 			for (int j = 0; j < b - i - 1; j++) {
@@ -173,7 +167,7 @@ public class AiHandler {
 	 * @see TTTHandler#whoHasWon(int[])
 	 *
 	 */
-	public void generateFields(int[] field, int deep, int depth) {
+	private void generateFields(int[] field, int deep, int depth) {
 		field[deep] = 0;
 		if (deep + 1 == depth) {
 			listOfFields.add(new TTTField(field.clone()));

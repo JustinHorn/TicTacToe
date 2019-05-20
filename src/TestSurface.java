@@ -17,25 +17,20 @@ import javax.swing.JRadioButton;
 /**
  * 
  * @author Justin Horn<br><br>
- * Window and game..... <br>
+ * Window and game..... <p>
  * Useful for testing purposes
  */
 public class TestSurface {
 
 	private JFrame window;
 	 /**0 = Algorithm, 1 = nn[0]| 2 = nn[1]| 3 = nn[2]*/
-	private int whichAi;
 	/**0 = CvS| 1 = SvC| 2 = SvS*/
-	private int whichGameMode;
-	private AiHandler aihandler;
 	private JTTTFieldPanel fieldSurface;
-	private TTTField field;
+	private ProgrammExecution execution;
+	private TestSurface_Execution_variableContainer container;
 	
-	private final int PLAYER_VS_PLAYER = 2;
-	/**
-	 * Does the shit
-	 * @param args
-	 */
+
+	
 	public static void main(String[] args) {
 		new TestSurface();
 	}
@@ -44,26 +39,28 @@ public class TestSurface {
 		assingGlobals();
 		setUpWindow();
 	}
-	
-	/**
-	 * Assigning global variables
-	 */
+
 	private void assingGlobals() {
-		aihandler = new AiHandler();
-		assignNeuralNetworks();
-		whichAi = 0;
-		whichGameMode = 0;
-		field = new TTTField();
+		container = new TestSurface_Execution_variableContainer();
+		window = new JFrame("TicTacToe");
+		setWindowBounds();
+
+		fieldSurface = new JTTTFieldPanel(window);
+
+		execution = new ProgrammExecution(container,fieldSurface);
+		
 	}
 	
 	private void setUpWindow() {
-		window = new JFrame("TicTacToe");
 		setWindowBounds();
 		window.setEnabled(true);
 		window.setVisible(true);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setLayout(null);
+		window.setResizable(false);
 		addPanelsToWindow();
+		window.revalidate();
+		window.repaint();
 	}
 	private void setWindowBounds() {
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -73,23 +70,13 @@ public class TestSurface {
 	}
 	
 	private void addPanelsToWindow() {
-
-		windowAdd_radioButtonPanels();
-		window.add(create_TicTacToePanel());
-
-		window.setResizable(false);
-		
-		window.revalidate();
-		window.repaint();
-	}
-	
-	private void windowAdd_radioButtonPanels() {
 		JPanel aiPanel = create_radioButtonPanel_for_aiType();
 		window.add(aiPanel);
 		window.add(create_radioButtonPanel_for_gameMode(aiPanel));
+		window.add(create_TicTacToePanel());
 	}
 	
-	private JPanel create_radioButtonPanel_for_gameMode(JPanel aiRadioPanel) {
+	private JPanel create_radioButtonPanel_for_gameMode(JPanel panel_supposedTo_ShowOrHide) {
 		JRadioButton[] radioButtons = new JRadioButton[3]; // radiobuttons gameTyp
 		radioButtons[2] = new JRadioButton("Player Vs Player");
 		radioButtons[1] = new JRadioButton("Player Vs Computer");
@@ -108,51 +95,61 @@ public class TestSurface {
 				final int b =j;
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					whichGameMode = b;
-					if (whichGameMode == PLAYER_VS_PLAYER) {
-						aiRadioPanel.setEnabled(false);
-						aiRadioPanel.setVisible(false);
+					container.whichGameMode = b;
+					if (container.whichGameMode  == container.PLAYER_VS_PLAYER) {
+						panel_supposedTo_ShowOrHide.setEnabled(false);
+						panel_supposedTo_ShowOrHide.setVisible(false);
 					} else {
-						aiRadioPanel.setEnabled(true);
-						aiRadioPanel.setVisible(true);
+						panel_supposedTo_ShowOrHide.setEnabled(true);
+						panel_supposedTo_ShowOrHide.setVisible(true);
 					}
 				}
 
 			});
 		}
 
-		panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Game Typ"));
+		panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Game Mode"));
 		panel.setBounds(window.getWidth() / 20, window.getHeight() / 20, window.getWidth() / 5, window.getHeight() / 5);
 		return panel;
 	}
 	
-	private JPanel create_radioButtonPanel_for_aiType() {
-		JPanel buttonPanel = new JPanel();
+	private JPanel create_radioButtonPanel_for_aiType() {		
+		JPanel buttonPanel = create_radioPanel_aiType();
+		
 		JRadioButton[] radioButton = create_AIradioButtonArray();
-		
-		addButtons_toA_ButtonGroup(radioButton);
-		
-		buttonPanel = new JPanel();
-		buttonPanel.setLayout(new GridLayout(4, 1));
-		for (int i = 0; i < radioButton.length; i++) {
-			buttonPanel.add(radioButton[i]);
-			radioButton[i].addActionListener(actionListener_that_changes_whichAi(i));
-		}
+		addRadioButtons_to_JPanel(buttonPanel,radioButton);
 
-		
-		buttonPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Ai Type"));
-		buttonPanel.setBounds(window.getWidth() / 20, 6 * window.getHeight() / 20, window.getWidth() / 5,
-				5 * window.getHeight() / 10);
-		buttonPanel.setEnabled(true);
 		return buttonPanel;
+	}
+	
+	private JPanel create_radioPanel_aiType() {
+		JPanel panel = new JPanel();
+		panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Ai Type"));
+		panel.setBounds(window.getWidth() / 20, 6 * window.getHeight() / 20, window.getWidth() / 5,
+				5 * window.getHeight() / 10);
+		panel.setEnabled(true);
+		return panel;
+	}
+	
+	private void addRadioButtons_to_JPanel(JPanel panel,JRadioButton[] rb) {
+		panel.setLayout(new GridLayout(rb.length, 1)); // does two thing....
+		for (int i = 0; i < rb.length; i++) {
+			panel.add(rb[i]);
+		}
 	}
 	
 	private JRadioButton[] create_AIradioButtonArray() {
 		JRadioButton[] ai = new JRadioButton[4]; // radioButtons aiType
 		ai[0] = new JRadioButton("Algorithm", true);//selected button
-		ai[1] = new JRadioButton("NeuralNet 1 "+String.format(" %2.3f ",aihandler.getRelativeScore(0)));
-		ai[2] = new JRadioButton("NeuralNet 2 "+String.format(" %2.3f ",aihandler.getRelativeScore(1)));
-		ai[3] = new JRadioButton("NeuralNet 3 "+String.format(" %2.3f ",aihandler.getRelativeScore(2)));
+		ai[1] = new JRadioButton("NeuralNet 1 "+String.format(" %2.3f ",container.getRelativScore_of_NN(0)));
+		ai[2] = new JRadioButton("NeuralNet 2 "+String.format(" %2.3f ",container.getRelativScore_of_NN(1)));
+		ai[3] = new JRadioButton("NeuralNet 3 "+String.format(" %2.3f ",container.getRelativScore_of_NN(2)));
+		for (int i = 0; i < ai.length; i++) {
+			ai[i].addActionListener(actionListener_that_changes_whichAi(i));
+
+		}
+		addButtons_toA_ButtonGroup(ai);
+
 		return ai;
 	}
 	
@@ -166,28 +163,22 @@ public class TestSurface {
 	}
 	
 	private JPanel create_TicTacToePanel() {
-	
-		fieldSurface = new JTTTFieldPanel();
-
 		for (int i = 0; i < 9; i++) {
-			fieldSurface.setMouseListener(i,newMouselistener_for_tttPanel(i));
+			fieldSurface.jpanel[i].addMouseListener(newMouselistener_for_tttPanel(i));
 		}
 		
-		fieldSurface.addListenerToButton(new ActionListener() {
+		fieldSurface.button_newGame.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				fieldSurface.reset();
-				field.setField_toStart();
-				if (whichGameMode == 0) { // ai starts
-					computerMove();
+				container.field.setField_toStart();
+				if (container.whichGameMode == container.COMPUTER_VS_PLAYER) { // ai starts
+					execution.computerMove();
 				}
 			}
 
 		});
-		
-		fieldSurface.setBounds(7 * window.getWidth() / 20, window.getHeight() / 20, 12 * window.getWidth() / 20,
-				8 * window.getHeight() / 10);
 		return fieldSurface;
 	}
 	
@@ -215,16 +206,16 @@ public class TestSurface {
 				mouseEvent();
 			}
 			private void mouseEvent() {
-				if(field.whoHasWon() == -1) {
-					if (field.isFree(index)) {
-						fieldSurface.paint(index, field.whosTurn());
-						field.set(index);
-						if (whichGameMode < 2) {
-							computerMove();
+				if(container.field.whoHasWon() == -1) {
+					if (container.field.isFree(index)) {
+						fieldSurface.paint(index, container.field.whosTurn());
+						container.field.set(index);
+						if (container.whichGameMode != container.PLAYER_VS_PLAYER) {
+							execution.computerMove();
 						}
 					}
 				}else {
-					JOptionPane.showMessageDialog(null, "Winner is: "+ field.toChar(field.whoHasWon()));
+					JOptionPane.showMessageDialog(null, "Winner is: "+ container.field.toChar(container.field.whoHasWon()));
 				}
 			}
 			@Override public void mouseEntered(MouseEvent e) {}@Override public void mouseExited(MouseEvent e) {}
@@ -236,61 +227,10 @@ public class TestSurface {
 			final int b = buttonIndex;
 
 			public void actionPerformed(ActionEvent e) {
-				whichGameMode = b;
+				container.whichAi = b;
 			}
 		};
 	}
 
-	/**
-	 * Computer makes its move
-	 * 
-	 */
-	private void computerMove() {
-		if (field.whoHasWon() == -1) {
-			int move =	calcPcMove();
-			fieldSurface.paint(move,field.whosTurn());
-			field.set(move);
-		}
-	}
-	
-	/**
-	 * Computer calculates its move
-	 * @return int move
-	 */
-	private int calcPcMove() {
-		int move = 0;
-		if (whichAi == 0) {
-			move = aihandler.ai(field).lastMove();
-		} else  {
-			move = aihandler.getMove_By_NeuralNetowrk(whichAi-1, field);
-		} 
-		return move;
-	}
-	
-	private void assignNeuralNetworks() {
-		try {
-			setUpNeuralNetworks_by_Files();
-		} catch (Exception e) {
-			e.printStackTrace();
-			setUpNeuralNetworks_by_calculation();
-		}
-	}
-	
-	private void setUpNeuralNetworks_by_Files() {
-		aihandler.addNeuralNet_by_File("3_[27, 1000, 9].txt");
-		aihandler.addNeuralNet_by_File("3_[27, 100, 9].txt");
-		aihandler.addNeuralNet_by_File("2_[27, 9].txt");
-	}
-	
-	private void setUpNeuralNetworks_by_calculation() {
-		int[] l1 = {27,9};
-		int[] l2 = {27,100,9};
-		int[] l3 = {27,1000,9};
-		
-		aihandler.addNeuralNet_by_Training(l1, 1000, 0.3);
-		aihandler.addNeuralNet_by_Training(l2, 1000, 0.3);
-		aihandler.addNeuralNet_by_Training(l3, 1000, 0.3);
-		
 
-	}
 }
