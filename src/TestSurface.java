@@ -23,44 +23,31 @@ import javax.swing.JRadioButton;
 public class TestSurface {
 
 	private JFrame window;
-	 /**0 = Algorithm, 1 = nn[0]| 2 = nn[1]| 3 = nn[2]*/
-	/**0 = CvS| 1 = SvC| 2 = SvS*/
 	private JTTTFieldPanel fieldSurface;
 	private ProgrammExecution execution;
-	private TestSurface_Execution_variableContainer container;
-	
-
-	
-	public static void main(String[] args) {
-		new TestSurface();
-	}
+	private Class_Connector container;
 
 	public TestSurface() {
-		assingGlobals();
 		setUpWindow();
+		assingGlobals();
+		addPanelsToWindow();
 	}
 
 	private void assingGlobals() {
-		container = new TestSurface_Execution_variableContainer();
-		window = new JFrame("TicTacToe");
-		setWindowBounds();
-
-		fieldSurface = new JTTTFieldPanel(window);
-
-		execution = new ProgrammExecution(container,fieldSurface);
-		
+		container = new Class_Connector(window);
+		fieldSurface = new JTTTFieldPanel(container);
+		execution = new ProgrammExecution(container);
+		container.addExecuter(execution);
 	}
 	
 	private void setUpWindow() {
+		window = new JFrame("TicTacToe");
 		setWindowBounds();
 		window.setEnabled(true);
 		window.setVisible(true);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setLayout(null);
 		window.setResizable(false);
-		addPanelsToWindow();
-		window.revalidate();
-		window.repaint();
 	}
 	private void setWindowBounds() {
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -73,7 +60,10 @@ public class TestSurface {
 		JPanel aiPanel = create_radioButtonPanel_for_aiType();
 		window.add(aiPanel);
 		window.add(create_radioButtonPanel_for_gameMode(aiPanel));
-		window.add(create_TicTacToePanel());
+		container.addTestSurface(fieldSurface);
+		window.add(container.fieldSurface);
+		window.revalidate();
+		window.repaint();
 	}
 	
 	private JPanel create_radioButtonPanel_for_gameMode(JPanel panel_supposedTo_ShowOrHide) {
@@ -145,8 +135,7 @@ public class TestSurface {
 		ai[2] = new JRadioButton("NeuralNet 2 "+String.format(" %2.3f ",container.getRelativScore_of_NN(1)));
 		ai[3] = new JRadioButton("NeuralNet 3 "+String.format(" %2.3f ",container.getRelativScore_of_NN(2)));
 		for (int i = 0; i < ai.length; i++) {
-			ai[i].addActionListener(actionListener_that_changes_whichAi(i));
-
+			ai[i].addActionListener(create_Actionlistener_changes_whichAi(i));
 		}
 		addButtons_toA_ButtonGroup(ai);
 
@@ -161,68 +150,8 @@ public class TestSurface {
 		}
 		return b;
 	}
-	
-	private JPanel create_TicTacToePanel() {
-		for (int i = 0; i < 9; i++) {
-			fieldSurface.jpanel[i].addMouseListener(newMouselistener_for_tttPanel(i));
-		}
-		
-		fieldSurface.button_newGame.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				fieldSurface.reset();
-				container.field.setField_toStart();
-				if (container.whichGameMode == container.COMPUTER_VS_PLAYER) { // ai starts
-					execution.computerMove();
-				}
-			}
-
-		});
-		return fieldSurface;
-	}
-	
-	/**
-	 * Tells the panel when it was clicked or not.
-	 * @param panelIndex
-	 * @return MouseListener that takes care of the move
-	 */
-	private MouseListener newMouselistener_for_tttPanel(final int panelIndex) {
-		return new MouseListener() {
-			final int index = panelIndex;
-
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				mouseEvent();
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-				mouseEvent();
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				mouseEvent();
-			}
-			private void mouseEvent() {
-				if(container.field.whoHasWon() == -1) {
-					if (container.field.isFree(index)) {
-						fieldSurface.paint(index, container.field.whosTurn());
-						container.field.set(index);
-						if (container.whichGameMode != container.PLAYER_VS_PLAYER) {
-							execution.computerMove();
-						}
-					}
-				}else {
-					JOptionPane.showMessageDialog(null, "Winner is: "+ container.field.toChar(container.field.whoHasWon()));
-				}
-			}
-			@Override public void mouseEntered(MouseEvent e) {}@Override public void mouseExited(MouseEvent e) {}
-		};
-	}
-	
-	private ActionListener actionListener_that_changes_whichAi(final int buttonIndex) {
+	private ActionListener create_Actionlistener_changes_whichAi(final int buttonIndex) {
 		return new ActionListener() {
 			final int b = buttonIndex;
 

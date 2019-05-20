@@ -18,9 +18,9 @@ public class AiHandler {
 	private List<Vector> inputVectors;
 	private List<Vector> outputVectors;
 	private List<Stats> statList;
-	private TestSurface_Execution_variableContainer c;
+	private Class_Connector c;
 	
-	public AiHandler(TestSurface_Execution_variableContainer c) {
+	public AiHandler(Class_Connector c) {
 		listOfFields = new ArrayList<TTTField>();
 		generateTrainingValues();
 		this.c = c;
