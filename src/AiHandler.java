@@ -58,16 +58,16 @@ public class AiHandler {
 			return stat;
 		}
 		// wenn Feld Unentschieden, dann 1 ansonsten sei es verloren also 0
-		return new Stats((field.whoHasWon() == 0 ? 1 : 0)); 
+		return new Stats((field.whoHasWon() == 0 ? 1 : 0));
 	}
 	
 	public void addNeuralNet_by_File(String filePath) throws IllegalArgumentException {
-		TTT_NN_Container container = new TTT_NN_Container(new NeuralNetwork(filePath));
+		NN_Container container = new NN_Container(new NeuralNetwork(filePath));
 		c.neuralnetworks.add(container);
 		calcScore_of_Container(container);
 	}
 	
-	private void calcScore_of_Container(TTT_NN_Container container) { // output argument?!
+	private void calcScore_of_Container(NN_Container container) { // output argument?!
 		NeuralNetwork n = container.nn;
 		int score = 0;
 		for (int i = 0; i < listOfFields.size(); i++) {
@@ -92,7 +92,7 @@ public class AiHandler {
 			}
 		}
 		System.out.println("Netz wurde trainiert");
-		TTT_NN_Container container = new TTT_NN_Container(nn);
+		NN_Container container = new NN_Container(nn);
 		c.neuralnetworks.add(container);
 		
 		calcScore_of_Container(container);		

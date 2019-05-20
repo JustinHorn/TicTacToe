@@ -40,7 +40,6 @@ public class ProgrammExecution {
 	 */
 	private int calcPcMove() {
 		int move = 0;
-		System.out.println(c.whichAi);
 		if (c.whichAi == 0) {
 			move = aihandler.ai(c.field).lastMove();
 		} else  {

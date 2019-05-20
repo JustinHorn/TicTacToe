@@ -6,7 +6,7 @@ public class TestSurface_Execution_variableContainer {
 	protected TTTField field;
 	protected int whichAi;
 	protected int whichGameMode;
-	protected List<TTT_NN_Container> neuralnetworks;
+	protected List<NN_Container> neuralnetworks;
 
 	
 	public static final int COMPUTER_VS_PLAYER = 0;
@@ -17,7 +17,7 @@ public class TestSurface_Execution_variableContainer {
 		whichAi = 0;
 		whichGameMode = 0;
 		field = new TTTField();
-		neuralnetworks = new ArrayList<TTT_NN_Container>();
+		neuralnetworks = new ArrayList<NN_Container>();
 	}
 	
 	public double getRelativScore_of_NN(int index) {
