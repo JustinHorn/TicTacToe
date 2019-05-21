@@ -20,12 +20,12 @@ import javax.swing.JRadioButton;
  * Window and game..... <p>
  * Useful for testing purposes
  */
-public class TestSurface extends JFrame {
+public class GraphicTTT extends JFrame {
 
-	private ConnectorOfGraphicClasses connector;
+	private SlideToGraphicClasses slide;
 
-	public TestSurface(ConnectorOfGraphicClasses connector) {
-		this.connector = connector;
+	public GraphicTTT(SlideToGraphicClasses slide) {
+		this.slide = slide;
 		setUpWindow();
 		addPanelsToWindow();
 		revalidate();
@@ -54,7 +54,7 @@ public class TestSurface extends JFrame {
 		add(aiPanel);
 		add(create_radioButtonPanel_for_gameMode(aiPanel));
 		
-		JTTTFieldPanel JtttField = new JTTTFieldPanel(connector);
+		JTTTFieldPanel JtttField = new JTTTFieldPanel(slide);
 		add(JtttField);
 		JtttField.fixBounds();
 	}
@@ -78,8 +78,8 @@ public class TestSurface extends JFrame {
 				final int b =j;
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					connector.whichGameMode = b;
-					if (connector.whichGameMode  == connector.PLAYER_VS_PLAYER) {
+					slide.whichGameMode = b;
+					if (slide.whichGameMode  == slide.PLAYER_VS_PLAYER) {
 						panel_supposedTo_ShowOrHide.setEnabled(false);
 						panel_supposedTo_ShowOrHide.setVisible(false);
 					} else {
@@ -122,11 +122,11 @@ public class TestSurface extends JFrame {
 	}
 	
 	private JRadioButton[] create_AIradioButtonArray() {
-		int s  = connector.neuralnetworks.size();
+		int s  = slide.neuralnetworks.size();
 		JRadioButton[] ai = new JRadioButton[s+1]; 
 		ai[0] = new JRadioButton("Algorithm", true);//selected button
 		for(int i = 1; i <= s;i++) {
-			ai[i] = new JRadioButton("NeuralNet "+i+" "+String.format(" %2.3f ",connector.getRelativScore_of_NN(i-1)));
+			ai[i] = new JRadioButton("NeuralNet "+i+" "+String.format(" %2.3f ",slide.getRelativScore_of_NN(i-1)));
 		}
 		for (int i = 0; i < ai.length; i++) {
 			ai[i].addActionListener(create_Actionlistener_changes_whichAi(i));
@@ -150,7 +150,7 @@ public class TestSurface extends JFrame {
 			final int b = buttonIndex;
 
 			public void actionPerformed(ActionEvent e) {
-				connector.whichAi = b;
+				slide.whichAi = b;
 			}
 		};
 	}

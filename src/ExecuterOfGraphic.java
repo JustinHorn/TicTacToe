@@ -1,18 +1,18 @@
 
-public class ProgrammExecution {
+public class ExecuterOfGraphic {
 
-	private ConnectorOfGraphicClasses c;
+	private SlideToGraphicClasses s;
 	private AiHandler aihandler;
 
-	public ProgrammExecution() {
-		c = new ConnectorOfGraphicClasses();
-		c.execution = this;
+	public ExecuterOfGraphic() {
+		s = new SlideToGraphicClasses();
+		s.execution = this;
 
-		c.field =  new TTTField();
-		aihandler = new AiHandler(c);
+		s.field =  new TTTField();
+		aihandler = new AiHandler(s);
 		assignNeuralNetworks();
 
-		c.testSurface = new TestSurface(c);
+		new GraphicTTT(s);
 	}
 
 	/**
@@ -21,7 +21,7 @@ public class ProgrammExecution {
 	 * 
 	 */
 	public int computerMove() {
-		if (c.field.whoHasWon() == -1) {
+		if (s.field.whoHasWon() == -1) {
 			int move =	calcPcMove();
 			return move;
 		}
@@ -35,10 +35,10 @@ public class ProgrammExecution {
 	 */
 	private int calcPcMove() {
 		int move = 0;
-		if (c.whichAi == 0) {
-			move = aihandler.ai(c.field).lastMove();
+		if (s.whichAi == 0) {
+			move = aihandler.ai(s.field).lastMove();
 		} else  {
-			move = aihandler.getMove_By_NeuralNetwork(c.whichAi-1, c.field);
+			move = aihandler.getMove_By_NeuralNetwork(s.whichAi-1, s.field);
 		} 
 		return move;
 	}

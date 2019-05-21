@@ -18,9 +18,9 @@ public class AiHandler {
 	protected List<NN_Container> neuralnetworks;
 	private int[] types = { 0, 3, 7 };
 
-	public AiHandler(ConnectorOfGraphicClasses c) {
+	public AiHandler(SlideToGraphicClasses slide) {
 		init();
-		neuralnetworks = c.neuralnetworks;
+		neuralnetworks = slide.neuralnetworks;
 	}
 
 	public AiHandler() {

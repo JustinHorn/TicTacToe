@@ -17,9 +17,9 @@ public class JTTTFieldPanel extends JPanel {
 	private PaintPanel[] jpanel = new PaintPanel[9]; 
 	private JButton button_newGame;
 	private JPanel jField;
-	private ConnectorOfGraphicClasses connector;
+	private SlideToGraphicClasses connector;
 	
-	public JTTTFieldPanel( ConnectorOfGraphicClasses c) {
+	public JTTTFieldPanel( SlideToGraphicClasses c) {
 		super();
 		connector = c;
 
