@@ -3,14 +3,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.sun.javafx.binding.StringFormatter;
-
-
 /**
  * 
- * @author Justin Horn
- *<br><br>
- *Helps Setting up the NN for tictactoe
+ * @author Justin Horn <br>
+ *         <br>
+ *         Helps Setting up the NN for tictactoe
  */
 public class AiHandler {
 
@@ -18,102 +15,75 @@ public class AiHandler {
 	private List<Vector> inputVectors;
 	private List<Vector> outputVectors;
 	private List<Stats> statList;
-	private Class_Connector c;
-	
-	public AiHandler(Class_Connector c) {
+	protected List<NN_Container> neuralnetworks;
+	private int[] types = { 0, 3, 7 };
+
+	public AiHandler(ConnectorOfGraphicClasses c) {
+		init();
+		neuralnetworks = c.neuralnetworks;
+	}
+
+	public AiHandler() {
+		init();
+		neuralnetworks = new ArrayList<NN_Container>();
+	}
+
+	public AiHandler(ArrayList<NN_Container> nnC) {
+		init();
+		neuralnetworks = nnC;
+	}
+
+	private void init() {
 		listOfFields = new ArrayList<TTTField>();
 		generateTrainingValues();
-		this.c = c;
-
 	}
+
 	/**
-	 * Algorithm that calculates flawless/perfect next moves.<br>
-	 * Tells also if in case of perfect play it is a loose, victory or a draw for any player.
-	 * @param field int[9] </pre>
+	 * Algorithm that calculates flawless/perfect next moves.
+	 * <p>
+	 * Tells also if in case of perfect play it is a loose, victory or a draw for
+	 * any player.
+	 * 
+	 * @param field int[9]
+	 *              </pre>
 	 * @return {@link Stats}
 	 */
 	public Stats ai(TTTField field) {
 		if (field.whoHasWon() == -1) {
-			List<Stats> outcome = new ArrayList<Stats>();
-			for (int i = 0; i < 9; i++) {
-				if (field.getInt_atIndex_X(i) == 0) {
-					field.set(i);
-					Stats a = ai(field);
-					a.invert(); // what is victory to one man is defeat to another
-					a.moves.add(i);
-					outcome.add(a);
-					field.set(i,0);
-				}
-			}
-			bSort(outcome); //Sortiert besten zug nach oben
+			List<Stats> outcome = calcMoves(field);
+			outcome = sortMoves_BestToWorst(outcome); 
+			
 			Stats stat = outcome.get(0);
-			double w = stat.wins;
-			double lo = stat.looses;
-			for (Stats s : outcome) {
-				stat.wins += s.wins;
-				stat.looses += s.looses;
-			}
-			stat.wins -= w;
-			stat.looses -= lo;
+			calcMove_Opportunitys(stat,outcome);
 			return stat;
 		}
 		// wenn Feld Unentschieden, dann 1 ansonsten sei es verloren also 0
 		return new Stats((field.whoHasWon() == 0 ? 1 : 0));
 	}
 	
-	public void addNeuralNet_by_File(String filePath) throws IllegalArgumentException {
-		NN_Container container = new NN_Container(new NeuralNetwork(filePath));
-		c.neuralnetworks.add(container);
-		calcScore_of_Container(container);
-	}
-	
-	private void calcScore_of_Container(NN_Container container) { // output argument?!
-		NeuralNetwork n = container.nn;
-		int score = 0;
-		for (int i = 0; i < listOfFields.size(); i++) {
-			int move = statList.get(i).lastMove();
-				if (n.calcLast(inputVectors.get(i)).largestIndex() == move) {
-					score++;
-				}
-		}
-		container.score = score;
-		container.relativeScore = ((double)score)/listOfFields.size();
-		System.out.println("NN has a total score of: " + container.score + " a ratio of:" + container.relativeScore);
-
-	}
-	
-	public void addNeuralNet_by_Training(int[] layers, int epochs, double learningRate) {
-		NeuralNetwork nn = new NeuralNetwork(layers);
-
-
-		for (int e = 0; e <epochs; e++) { // epochen
-			for (int i = 0; i < inputVectors.size(); i++) {
-					nn.train(inputVectors.get(i), outputVectors.get(i), learningRate);
+	private List<Stats> calcMoves(TTTField field)  {
+		List<Stats> outcome = new ArrayList<Stats>();
+		for (int i = 0; i < 9; i++) {
+			if (field.getInt_atIndex_X(i) == 0) {
+				field.set(i);
+				Stats a = ai(field);
+				a.invert(); // what is victory to one man is defeat to another
+				a.moves.add(i);
+				outcome.add(a);
+				field.set(i, 0);
 			}
 		}
-		System.out.println("Netz wurde trainiert");
-		NN_Container container = new NN_Container(nn);
-		c.neuralnetworks.add(container);
-		
-		calcScore_of_Container(container);		
-	}
-	
-	
-	public int getMove_By_NeuralNetwork(int index, TTTField field) {
-		NeuralNetwork n = c.neuralnetworks.get(index).nn;
-		Vector output = n.calcLast(field.toInputVector());
-		int move = output.largestIndex(field.possibleMoves());
-		return move;
+		return outcome;
 	}
 	
 	/**
 	 * Bubble sorts States List There surly is a easier way. But this was the one I
 	 * first thought of
 	 * 
-	 * @param a List&ltStats&gt 
-	 * @return sorted List&ltStats&gt  with greatest move on top
+	 * @param a List&ltStats&gt
+	 * @return sorted List&ltStats&gt with greatest move on top
 	 */
-	private List<Stats> bSort(List<Stats> a) {
+	private List<Stats> sortMoves_BestToWorst(List<Stats> a) {
 		int b = a.size();
 		for (int i = 0; i < b; i++) {
 			for (int j = 0; j < b - i - 1; j++) {
@@ -124,6 +94,61 @@ public class AiHandler {
 			}
 		}
 		return a;
+	}
+	
+	private void calcMove_Opportunitys(Stats stat,List<Stats> outcome) {
+		double w = stat.wins;
+		double lo = stat.looses;
+		for (Stats s : outcome) {
+			stat.wins += s.wins;
+			stat.looses += s.looses;
+		}
+		stat.wins -= w;
+		stat.looses -= lo;
+	}
+	
+
+	public void addNeuralNet_by_File(String filePath) throws IllegalArgumentException {
+		NN_Container container = new NN_Container(new NeuralNetwork(filePath));
+		neuralnetworks.add(container);
+		calcScore_of_Container(container);
+	}
+
+	private void calcScore_of_Container(NN_Container container) { // output argument?!
+		NeuralNetwork n = container.nn;
+		int score = 0;
+		for (int i = 0; i < listOfFields.size(); i++) {
+			int move = statList.get(i).lastMove();
+			if (n.calcLast(inputVectors.get(i)).largestIndex() == move) {
+				score++;
+			}
+		}
+		container.score = score;
+		container.relativeScore = ((double) score) / listOfFields.size();
+		System.out.println("NN has a total score of: " + container.score + " a ratio of:" + container.relativeScore);
+
+	}
+
+	public void addNeuralNet_by_Training(int[] layers, int epochs, double learningRate) {
+		NeuralNetwork nn = new NeuralNetwork(layers);
+
+		for (int e = 0; e < epochs; e++) { // epochen
+			for (int i = 0; i < inputVectors.size(); i++) {
+				nn.train(inputVectors.get(i), outputVectors.get(i), learningRate);
+			}
+		}
+		System.out.println("Netz wurde trainiert");
+		NN_Container container = new NN_Container(nn);
+		neuralnetworks.add(container);
+
+		calcScore_of_Container(container);
+	}
+
+	public int getMove_By_NeuralNetwork(int index, TTTField field) {
+		NeuralNetwork n = neuralnetworks.get(index).nn;
+		Vector output = n.calcLast(field.toInputVector());
+		int move = output.largestIndex(field.possibleMoves());
+		return move;
 	}
 
 	
@@ -142,7 +167,7 @@ public class AiHandler {
 				i++;
 			}
 		}
-		
+
 		inputVectors = new ArrayList<Vector>();
 		outputVectors = new ArrayList<Vector>();
 		statList = new ArrayList<Stats>();
@@ -154,7 +179,6 @@ public class AiHandler {
 		}
 		System.out.println("Werte wurden prepariert");
 	}
-
 
 	/**
 	 * Recursive function that generates all possible TicTacToe fields and adds them
@@ -168,30 +192,16 @@ public class AiHandler {
 	 *
 	 */
 	private void generateFields(int[] field, int deep, int depth) {
-		field[deep] = 0;
-		if (deep + 1 == depth) {
-			listOfFields.add(new TTTField(field.clone()));
-			// printArray(field);
-		} else if (deep + 1 < depth) {
-			generateFields(field, deep + 1, depth);
-		}
-		field[deep] = 3;
-		if (deep + 1 == depth) {
-			listOfFields.add(new TTTField(field.clone()));
-			// printArray(field);
-		} else if (deep + 1 < depth) {
-			generateFields(field, deep + 1, depth);
-		}
-		field[deep] = 7;
-		if (deep + 1 == depth) {
-			listOfFields.add(new TTTField(field.clone()));
-			// printArray(field);
-		} else if (deep + 1 < depth) {
-			generateFields(field, deep + 1, depth);
+		for (int t : types) {
+			field[deep] = t;
+			if (deep + 1 == depth) {
+				listOfFields.add(new TTTField(field.clone()));
+				// printArray(field);
+			} else if (deep + 1 < depth) {
+				generateFields(field, deep + 1, depth);
+			}
 		}
 	}
-
-
 
 	/**
 	 * 

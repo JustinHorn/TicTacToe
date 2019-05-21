@@ -22,12 +22,14 @@ import javax.swing.JRadioButton;
  */
 public class TestSurface extends JFrame {
 
-	private Class_Connector connector;
+	private ConnectorOfGraphicClasses connector;
 
-	public TestSurface(Class_Connector connector) {
+	public TestSurface(ConnectorOfGraphicClasses connector) {
 		this.connector = connector;
 		setUpWindow();
 		addPanelsToWindow();
+		revalidate();
+		repaint();
 	}
 	
 	private void setUpWindow() {
@@ -51,8 +53,10 @@ public class TestSurface extends JFrame {
 		JPanel aiPanel = create_radioButtonPanel_for_aiType();
 		add(aiPanel);
 		add(create_radioButtonPanel_for_gameMode(aiPanel));
-		revalidate();
-		repaint();
+		
+		JTTTFieldPanel JtttField = new JTTTFieldPanel(connector);
+		add(JtttField);
+		JtttField.fixBounds();
 	}
 	
 	private JPanel create_radioButtonPanel_for_gameMode(JPanel panel_supposedTo_ShowOrHide) {
@@ -118,11 +122,12 @@ public class TestSurface extends JFrame {
 	}
 	
 	private JRadioButton[] create_AIradioButtonArray() {
-		JRadioButton[] ai = new JRadioButton[4]; // radioButtons aiType
+		int s  = connector.neuralnetworks.size();
+		JRadioButton[] ai = new JRadioButton[s+1]; 
 		ai[0] = new JRadioButton("Algorithm", true);//selected button
-		ai[1] = new JRadioButton("NeuralNet 1 "+String.format(" %2.3f ",connector.getRelativScore_of_NN(0)));
-		ai[2] = new JRadioButton("NeuralNet 2 "+String.format(" %2.3f ",connector.getRelativScore_of_NN(1)));
-		ai[3] = new JRadioButton("NeuralNet 3 "+String.format(" %2.3f ",connector.getRelativScore_of_NN(2)));
+		for(int i = 1; i <= s;i++) {
+			ai[i] = new JRadioButton("NeuralNet "+i+" "+String.format(" %2.3f ",connector.getRelativScore_of_NN(i-1)));
+		}
 		for (int i = 0; i < ai.length; i++) {
 			ai[i].addActionListener(create_Actionlistener_changes_whichAi(i));
 		}

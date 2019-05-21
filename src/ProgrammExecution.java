@@ -1,32 +1,28 @@
 
 public class ProgrammExecution {
 
-
-	private Class_Connector c;
+	private ConnectorOfGraphicClasses c;
 	private AiHandler aihandler;
-	private JTTTFieldPanel panelToBePainted;
-	private TTTField tttField;
-	
-	public ProgrammExecution(Class_Connector c) {	
-		this.c = c;
-		tttField = c.field;
+
+	public ProgrammExecution() {
+		c = new ConnectorOfGraphicClasses();
+		c.execution = this;
+
+		c.field =  new TTTField();
 		aihandler = new AiHandler(c);
 		assignNeuralNetworks();
-		panelToBePainted = c.fieldSurface;
+
+		c.testSurface = new TestSurface(c);
 	}
 
-
-	
 	/**
-	 * Computer makes its move
+	 * R
 	 * @throws Exception 
 	 * 
 	 */
 	public int computerMove() {
-		if (tttField.whoHasWon() == -1) {
+		if (c.field.whoHasWon() == -1) {
 			int move =	calcPcMove();
-			panelToBePainted.paint(move, tttField.whosTurn());
-			tttField.set(move);
 			return move;
 		}
 		return -1;
@@ -40,9 +36,9 @@ public class ProgrammExecution {
 	private int calcPcMove() {
 		int move = 0;
 		if (c.whichAi == 0) {
-			move = aihandler.ai(tttField).lastMove();
+			move = aihandler.ai(c.field).lastMove();
 		} else  {
-			move = aihandler.getMove_By_NeuralNetwork(c.whichAi-1, tttField);
+			move = aihandler.getMove_By_NeuralNetwork(c.whichAi-1, c.field);
 		} 
 		return move;
 	}
