@@ -12,14 +12,14 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-public class JTTTFieldPanel extends JPanel {
+public class GraphicTTTField extends JPanel {
 
 	private PaintPanel[] jpanel = new PaintPanel[9]; 
 	private JButton button_newGame;
 	private JPanel jField;
 	private SlideToGraphicClasses connector;
 	
-	public JTTTFieldPanel( SlideToGraphicClasses c) {
+	public GraphicTTTField( SlideToGraphicClasses c) {
 		super();
 		connector = c;
 

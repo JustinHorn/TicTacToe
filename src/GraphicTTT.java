@@ -54,9 +54,9 @@ public class GraphicTTT extends JFrame {
 		add(aiPanel);
 		add(create_radioButtonPanel_for_gameMode(aiPanel));
 		
-		JTTTFieldPanel JtttField = new JTTTFieldPanel(slide);
-		add(JtttField);
-		JtttField.fixBounds();
+		GraphicTTTField JtttFieldPanel = new GraphicTTTField(slide);
+		add(JtttFieldPanel);
+		JtttFieldPanel.fixBounds();
 	}
 	
 	private JPanel create_radioButtonPanel_for_gameMode(JPanel panel_supposedTo_ShowOrHide) {
