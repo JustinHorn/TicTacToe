@@ -204,7 +204,6 @@ public class AiHandler {
 	}
 
 	/**
-	 * 
 	 * @param field  int[]
 	 * @param {@link Stats s}
 	 * @return {@link Vector}
