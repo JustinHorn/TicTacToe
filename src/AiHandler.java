@@ -3,6 +3,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import main.java.de.phip1611.math.matrices.NeuralNetwork;
+import main.java.de.phip1611.math.matrices.Vector;
+
 /**
  * 
  * @author Justin Horn <br>
