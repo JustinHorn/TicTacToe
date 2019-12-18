@@ -6,7 +6,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="/Matrices_with_simple_Neuralnet"/>
 	<classpathentry kind="lib" path="lib/MatricesSimpleNeuralNetwork.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
