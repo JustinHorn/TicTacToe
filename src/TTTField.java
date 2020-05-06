@@ -8,12 +8,12 @@ import main.java.de.phip1611.math.matrices.Vector;
 public class TTTField {
 
 	public int[] field;
-	public final int X = 7;
-	public final int O = 3;
+	public static final int X = 7;
+	public static final int O = 3;
 	
 	public TTTField() {
 		field = new int[9];
-		setField_toStart();
+		setFieldToStart();
 	}
 	
 	/** field length needs to be 9;
@@ -34,14 +34,14 @@ public class TTTField {
 	 * @return What is used in this TicTacToe Game
 	 */
 	public static int[] getTypes() {
-		return new int[]{0,3,7};
+		return new int[]{0,O,X};
 	}
 	
 	/**
 	 * Sets all ints of given field to 0
 	 *
 	 */
-	public void setField_toStart() {
+	public void setFieldToStart() {
 		for (int i = 0; i < 9; i++) {
 			field[i] = 0;
 		}
@@ -111,7 +111,7 @@ public class TTTField {
 		}
 	}
 	
-	public int getInt_atIndex_X(int x) {
+	public int get(int x) {
 		if(x < 0 || 8 < x) {
 			System.out.println("Error: x:"+ x+" length:"+9);
 			throw new IndexOutOfBoundsException();
@@ -143,13 +143,13 @@ public class TTTField {
 		int countX = 0;
 		int countO = 0;
 		for (int i = 0; i < field.length; i++) {
-			if (field[i] == 3) {
+			if (field[i] == O) {
 				countO++;
-			} else if (field[i] == 7) {
+			} else if (field[i] == X) {
 				countX++;
 			}
 		}
-		return countX <= countO ? 7 : 3;
+		return countX <= countO ? X : O;
 	}
 	
 	/**
@@ -164,9 +164,9 @@ public class TTTField {
 		int countX = 0;
 		int countO = 0;
 		for (int i = 0; i < field.length; i++) {
-			if (field[i] == 3) {
+			if (field[i] == O) {
 				countO++;
-			} else if (field[i] == 7) {
+			} else if (field[i] == X) {
 				countX++;
 			}
 		}
@@ -188,9 +188,9 @@ public class TTTField {
 
 			if (field[i / 3] == 0) {
 				vector[i] = 0.99;
-			} else if (field[i / 3] == 3) {
+			} else if (field[i / 3] == O) {
 				vector[i + 1] = 0.99;
-			} else if (field[i / 3] == 7) {
+			} else if (field[i / 3] == X) {
 				vector[i + 2] = 0.99;
 			}
 		}
@@ -215,12 +215,12 @@ public class TTTField {
 	}
 	
 	public char toChar(int x) {
-		if(x != 0 && x!= 3 && x!=7) {
+		if(x != 0 && x!= O && x!=X) {
 			throw new IllegalArgumentException("Parameter is neither 0,3 nor 7! x:"+x);
 		}
 		if (x == 0) {
 			return ' ';
-		} else if (x == 3) {
+		} else if (x == O) {
 			return 'O';
 		}
 		return 'X';

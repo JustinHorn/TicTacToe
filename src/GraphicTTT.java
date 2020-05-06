@@ -50,22 +50,22 @@ public class GraphicTTT extends JFrame {
 	}
 	
 	private void addPanelsToWindow() {
-		JPanel aiPanel = create_radioButtonPanel_for_aiType();
+		JPanel aiPanel = createRadioButtonPanelForAiType();
 		add(aiPanel);
-		add(create_radioButtonPanel_for_gameMode(aiPanel));
+		add(createRadioButtonPanelForGameMode(aiPanel));
 		
 		GraphicTTTField JtttFieldPanel = new GraphicTTTField(slide);
 		add(JtttFieldPanel);
 		JtttFieldPanel.fixBounds();
 	}
 	
-	private JPanel create_radioButtonPanel_for_gameMode(JPanel panel_supposedTo_ShowOrHide) {
+	private JPanel createRadioButtonPanelForGameMode(JPanel panel_supposedTo_ShowOrHide) {
 		JRadioButton[] radioButtons = new JRadioButton[3]; // radiobuttons gameTyp
 		radioButtons[2] = new JRadioButton("Player Vs Player");
 		radioButtons[1] = new JRadioButton("Player Vs Computer");
 		radioButtons[0] = new JRadioButton("Computer Vs Player", true);
 
-		addButtons_toA_ButtonGroup(radioButtons);
+		addButtonsToAButtonGroup(radioButtons);
 		
 		
 		JPanel panel = new JPanel();
@@ -96,16 +96,16 @@ public class GraphicTTT extends JFrame {
 		return panel;
 	}
 	
-	private JPanel create_radioButtonPanel_for_aiType() {		
-		JPanel buttonPanel = create_radioPanel_aiType();
+	private JPanel createRadioButtonPanelForAiType() {		
+		JPanel buttonPanel = createRadioPanelAiType();
 		
-		JRadioButton[] radioButton = create_AIradioButtonArray();
-		addRadioButtons_to_JPanel(buttonPanel,radioButton);
+		JRadioButton[] radioButton = createAIradioButtonArray();
+		addRadioButtonsToJPanel(buttonPanel,radioButton);
 
 		return buttonPanel;
 	}
 	
-	private JPanel create_radioPanel_aiType() {
+	private JPanel createRadioPanelAiType() {
 		JPanel panel = new JPanel();
 		panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Ai Type"));
 		panel.setBounds(getWidth() / 20, 6 * getHeight() / 20, getWidth() / 5,
@@ -114,30 +114,30 @@ public class GraphicTTT extends JFrame {
 		return panel;
 	}
 	
-	private void addRadioButtons_to_JPanel(JPanel panel,JRadioButton[] rb) {
+	private void addRadioButtonsToJPanel(JPanel panel,JRadioButton[] rb) {
 		panel.setLayout(new GridLayout(rb.length, 1)); // does two thing....
 		for (int i = 0; i < rb.length; i++) {
 			panel.add(rb[i]);
 		}
 	}
 	
-	private JRadioButton[] create_AIradioButtonArray() {
+	private JRadioButton[] createAIradioButtonArray() {
 		int s  = slide.neuralnetworks.size();
 		JRadioButton[] ai = new JRadioButton[s+1]; 
 		ai[0] = new JRadioButton("Algorithm", true);//selected button
 		for(int i = 1; i <= s;i++) {
-			ai[i] = new JRadioButton("NeuralNet "+i+" "+String.format(" %2.3f ",slide.getRelativScore_of_NN(i-1)));
+			ai[i] = new JRadioButton("NeuralNet "+i+" "+String.format(" %2.3f ",slide.getRelativScoreOfNN(i-1)));
 		}
 		for (int i = 0; i < ai.length; i++) {
-			ai[i].addActionListener(create_Actionlistener_changes_whichAi(i));
+			ai[i].addActionListener(createActionlistenerChangesWhichAi(i));
 		}
-		addButtons_toA_ButtonGroup(ai);
+		addButtonsToAButtonGroup(ai);
 
 		return ai;
 	}
 	
 	
-	private ButtonGroup addButtons_toA_ButtonGroup(AbstractButton[] buttons) {
+	private ButtonGroup addButtonsToAButtonGroup(AbstractButton[] buttons) {
 		ButtonGroup b = new ButtonGroup();
 		for (int i = 0; i < buttons.length; i++) {
 			b.add(buttons[i]);
@@ -145,7 +145,7 @@ public class GraphicTTT extends JFrame {
 		return b;
 	}
 
-	private ActionListener create_Actionlistener_changes_whichAi(final int buttonIndex) {
+	private ActionListener createActionlistenerChangesWhichAi(final int buttonIndex) {
 		return new ActionListener() {
 			final int b = buttonIndex;
 

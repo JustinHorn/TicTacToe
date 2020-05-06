@@ -12,7 +12,7 @@ public class SlideToGraphicClasses {
 	protected TTTField field;
 	protected int whichAi;
 	protected int whichGameMode;
-	protected List<NN_Container> neuralnetworks;
+	protected List<NNContainer> neuralnetworks;
 	protected ExecuterOfGraphic execution;
 	
 	public static final int COMPUTER_VS_PLAYER = 0;
@@ -23,10 +23,10 @@ public class SlideToGraphicClasses {
 	public SlideToGraphicClasses() {
 		whichAi = 0;
 		whichGameMode = 0;
-		neuralnetworks = new ArrayList<NN_Container>();
+		neuralnetworks = new ArrayList<NNContainer>();
 	}
 	
-	public double getRelativScore_of_NN(int index) {
+	public double getRelativScoreOfNN(int index) {
 		return neuralnetworks.get(index).relativeScore;
 	}
 }

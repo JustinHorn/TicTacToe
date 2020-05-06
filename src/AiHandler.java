@@ -1,11 +1,14 @@
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import main.java.de.phip1611.math.matrices.NeuralNetwork;
 import main.java.de.phip1611.math.matrices.Vector;
-
 /**
  * 
  * @author Justin Horn <br>
@@ -18,8 +21,9 @@ public class AiHandler {
 	private List<Vector> inputVectors;
 	private List<Vector> outputVectors;
 	private List<Stats> statList;
-	protected List<NN_Container> neuralnetworks;
+	protected List<NNContainer> neuralnetworks;
 	private int[] types = { 0, 3, 7 };
+	
 
 	public AiHandler(SlideToGraphicClasses slide) {
 		init();
@@ -28,10 +32,10 @@ public class AiHandler {
 
 	public AiHandler() {
 		init();
-		neuralnetworks = new ArrayList<NN_Container>();
+		neuralnetworks = new ArrayList<NNContainer>();
 	}
 
-	public AiHandler(ArrayList<NN_Container> nnC) {
+	public AiHandler(ArrayList<NNContainer> nnC) {
 		init();
 		neuralnetworks = nnC;
 	}
@@ -39,6 +43,31 @@ public class AiHandler {
 	private void init() {
 		listOfFields = new ArrayList<TTTField>();
 		generateTrainingValues();
+	}
+	
+	public void writeTrainingValuesToFile() {
+		int l = inputVectors.size();
+		try {
+			File f = new File("trainData.txt");
+			if(!f.exists()) {
+				f.createNewFile();
+			}
+			BufferedWriter w = new BufferedWriter(new FileWriter(f));
+			for(int i = 0; i < l;i++) {
+				w.write(removeNewLinesFromString(inputVectors.get(i).toString()+"|||"));
+				w.write(removeNewLinesFromString(outputVectors.get(i).toString()));
+				w.newLine();
+			}
+			w.write(l+"");
+			w.flush();
+			w.close();
+		}catch (Exception e) {
+			e.printStackTrace();
+		} 
+	}
+	
+	private String removeNewLinesFromString(String str) {
+		return str.replaceAll(System.lineSeparator()+"", "");
 	}
 
 	/**
@@ -51,25 +80,25 @@ public class AiHandler {
 	 *              </pre>
 	 * @return {@link Stats}
 	 */
-	public Stats ai(TTTField field) {
+	public Stats calcMove(TTTField field) {
 		if (field.whoHasWon() == -1) {
-			List<Stats> outcome = calcMoves(field);
-			outcome = sortMoves_BestToWorst(outcome); 
+			List<Stats> outcome = calcMovesBruteForce(field);
+			outcome = sortMoves(outcome); 
 			
 			Stats stat = outcome.get(0);
-			calcMove_Opportunitys(stat,outcome);
+			calcOpportunitys(stat,outcome);
 			return stat;
 		}
 		// wenn Feld Unentschieden, dann 1 ansonsten sei es verloren also 0
 		return new Stats((field.whoHasWon() == 0 ? 1 : 0));
 	}
 	
-	private List<Stats> calcMoves(TTTField field)  {
+	private List<Stats> calcMovesBruteForce(TTTField field)  {
 		List<Stats> outcome = new ArrayList<Stats>();
 		for (int i = 0; i < 9; i++) {
-			if (field.getInt_atIndex_X(i) == 0) {
+			if (field.get(i) == 0) {
 				field.set(i);
-				Stats a = ai(field);
+				Stats a = calcMove(field);
 				a.invert(); // what is victory to one man is defeat to another
 				a.moves.add(i);
 				outcome.add(a);
@@ -86,7 +115,7 @@ public class AiHandler {
 	 * @param a List&ltStats&gt
 	 * @return sorted List&ltStats&gt with greatest move on top
 	 */
-	private List<Stats> sortMoves_BestToWorst(List<Stats> a) {
+	private List<Stats> sortMoves(List<Stats> a) {
 		int b = a.size();
 		for (int i = 0; i < b; i++) {
 			for (int j = 0; j < b - i - 1; j++) {
@@ -99,7 +128,7 @@ public class AiHandler {
 		return a;
 	}
 	
-	private void calcMove_Opportunitys(Stats stat,List<Stats> outcome) {
+	private void calcOpportunitys(Stats stat,List<Stats> outcome) {
 		double w = stat.wins;
 		double lo = stat.looses;
 		for (Stats s : outcome) {
@@ -111,13 +140,13 @@ public class AiHandler {
 	}
 	
 
-	public void addNeuralNet_by_File(String filePath) throws IllegalArgumentException {
-		NN_Container container = new NN_Container(new NeuralNetwork(filePath));
+	public void addNeuralNetByFile(String filePath) throws IllegalArgumentException {
+		NNContainer container = new NNContainer(new NeuralNetwork(filePath));
 		neuralnetworks.add(container);
-		calcScore_of_Container(container);
+		calcScoreOfContainer(container);
 	}
 
-	private void calcScore_of_Container(NN_Container container) { // output argument?!
+	private void calcScoreOfContainer(NNContainer container) { // output argument?!
 		NeuralNetwork n = container.nn;
 		int score = 0;
 		for (int i = 0; i < listOfFields.size(); i++) {
@@ -132,7 +161,7 @@ public class AiHandler {
 
 	}
 
-	public void addNeuralNet_by_Training(int[] layers, int epochs, double learningRate) {
+	public void addNeuralNetByTraining(int[] layers, int epochs, double learningRate) {
 		NeuralNetwork nn = new NeuralNetwork(layers);
 
 		for (int e = 0; e < epochs; e++) { // epochen
@@ -141,13 +170,13 @@ public class AiHandler {
 			}
 		}
 		System.out.println("Netz wurde trainiert");
-		NN_Container container = new NN_Container(nn);
+		NNContainer container = new NNContainer(nn);
 		neuralnetworks.add(container);
 
-		calcScore_of_Container(container);
+		calcScoreOfContainer(container);
 	}
 
-	public int getMove_By_NeuralNetwork(int index, TTTField field) {
+	public int getMoveByNeuralNetwork(int index, TTTField field) {
 		NeuralNetwork n = neuralnetworks.get(index).nn;
 		Vector output = n.calcLast(field.toInputVector());
 		int move = output.largestIndex(field.possibleMoves());
@@ -177,7 +206,7 @@ public class AiHandler {
 
 		for (int j = 0; j < listOfFields.size(); j++) {
 			inputVectors.add(listOfFields.get(j).toInputVector());
-			statList.add(ai(listOfFields.get(j)));
+			statList.add(calcMove(listOfFields.get(j)));
 			outputVectors.add(moveToOutputVector(statList.get(j).lastMove()));
 		}
 		System.out.println("Werte wurden prepariert");

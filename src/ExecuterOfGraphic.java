@@ -36,36 +36,36 @@ public class ExecuterOfGraphic {
 	private int calcPcMove() {
 		int move = 0;
 		if (s.whichAi == 0) {
-			move = aihandler.ai(s.field).lastMove();
+			move = aihandler.calcMove(s.field).lastMove();
 		} else  {
-			move = aihandler.getMove_By_NeuralNetwork(s.whichAi-1, s.field);
+			move = aihandler.getMoveByNeuralNetwork(s.whichAi-1, s.field);
 		} 
 		return move;
 	}
 	
 	private void assignNeuralNetworks() {
 		try {
-			setUpNeuralNetworks_by_Files();
+			setUpNeuralNetworksByFiles();
 		} catch (Exception e) {
 			e.printStackTrace();
-			setUpNeuralNetworks_by_calculation();
+			setUpNeuralNetworksByCalculation();
 		}
 	}
 	
-	private void setUpNeuralNetworks_by_Files() {
-		aihandler.addNeuralNet_by_File("3_[27, 1000, 9].txt");
-		aihandler.addNeuralNet_by_File("3_[27, 100, 9].txt");
-		aihandler.addNeuralNet_by_File("2_[27, 9].txt");
+	private void setUpNeuralNetworksByFiles() {
+		aihandler.addNeuralNetByFile("3_[27, 1000, 9].txt");
+		aihandler.addNeuralNetByFile("3_[27, 100, 9].txt");
+		aihandler.addNeuralNetByFile("2_[27, 9].txt");
 	}
 	
-	private void setUpNeuralNetworks_by_calculation() {
+	private void setUpNeuralNetworksByCalculation() {
 		int[] l1 = {27,9};
 		int[] l2 = {27,100,9};
 		int[] l3 = {27,1000,9};
 		
-		aihandler.addNeuralNet_by_Training(l1, 1000, 0.3);
-		aihandler.addNeuralNet_by_Training(l2, 1000, 0.3);
-		aihandler.addNeuralNet_by_Training(l3, 1000, 0.3);
+		aihandler.addNeuralNetByTraining(l1, 1000, 0.3);
+		aihandler.addNeuralNetByTraining(l2, 1000, 0.3);
+		aihandler.addNeuralNetByTraining(l3, 1000, 0.3);
 	}
 	
 

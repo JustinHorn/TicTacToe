@@ -28,7 +28,7 @@ public class GraphicTTTField extends JPanel {
 
 		setUpjField();
 		
-		setUp_button_newGame();
+		setUpButtonNewGame();
 
 		fixBounds();
 	}
@@ -41,7 +41,7 @@ public class GraphicTTTField extends JPanel {
 			jpanel[i] = new PaintPanel();
 			jField.add(jpanel[i]);
 			jpanel[i].setState(0);
-			jpanel[i].addMouseListener(newMouselistener_for_tttPanel(i));
+			jpanel[i].addMouseListener(newMouselistenerForTttPanel(i));
 		}
 		add(jField);
 	}
@@ -51,7 +51,7 @@ public class GraphicTTTField extends JPanel {
 	 * @param panelIndex
 	 * @return MouseListener that takes care of the move
 	 */
-	private MouseListener newMouselistener_for_tttPanel(final int panelIndex ) {
+	private MouseListener newMouselistenerForTttPanel(final int panelIndex ) {
 		return new MouseListener() {
 			final int index = panelIndex;
 			@Override
@@ -95,18 +95,18 @@ public class GraphicTTTField extends JPanel {
 		jpanel[fieldIndex].repaint();
 	}
 
-	private void setUp_button_newGame() {
+	private void setUpButtonNewGame() {
 		button_newGame = new JButton("new Game");		
-		button_newGame.addActionListener(createActionListener_newGame());
+		button_newGame.addActionListener(createActionListenerNewGame());
 		add(button_newGame);
 	}
 	
-	private ActionListener createActionListener_newGame() {
+	private ActionListener createActionListenerNewGame() {
 		return new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				reset();
-				connector.field.setField_toStart();
+				connector.field.setFieldToStart();
 				if (connector.whichGameMode == connector.COMPUTER_VS_PLAYER) { // ai starts
 					int move = connector.execution.computerMove();
 					paint(move,connector.field.whosTurn());
@@ -137,7 +137,7 @@ public class GraphicTTTField extends JPanel {
 		}
 	}
 	
-	public void set_by_Field(int[] field) {
+	public void setByField(int[] field) {
 		for (int i = 0; i < jpanel.length; i++) {
 			jpanel[i].setState(field[i]);
 			jpanel[i].repaint();
